@@ -1,0 +1,9 @@
+Total providers: 56209
+Mean data completeness: 1.0
+Providers by type:
+provider_type
+OTHER                   26564
+HOMECARE                14376
+GP_PRACTICE              9293
+HOSPITAL                 5134
+MENTAL_HEALTH_CLINIC      842

@@ -1,0 +1,10 @@
+services:
+  healthcare-api:
+    build: .
+    container_name: healthcare_api
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    restart: unless-stopped
