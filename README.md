@@ -1,104 +1,112 @@
-🏥 Healthcare Data Pipeline API
+#  Healthcare Data Pipeline API
 
-An end-to-end healthcare data pipeline that ingests real CQC provider data, cleans and transforms it, generates KPIs and reports, trains a machine learning model, and exposes predictions via a FastAPI microservice.
+[![Live API](https://img.shields.io/badge/Live_API-Render-blue)](https://healthcare-pipeline.onrender.com/health)
 
-🚀 Live Demo: Healthcare Pipeline on Render
+A complete, end-to-end healthcare data engineering pipeline that:
 
-⚡ Tech Stack: Python · Pandas · Scikit-learn · FastAPI · Docker · Render
+- ingests real CQC (Care Quality Commission) data,
+- performs cleaning and transformation,
+- generates analytics and reports,
+- trains a machine learning model to assess data quality risk,
+- and serves real-time predictions through a **FastAPI** interface, all packaged in Docker and deployed on **Render**.
 
-📊 Features
+---
 
-✅ Fetches real Care Quality Commission (CQC) healthcare provider directory (UK).
+##  Live Demo
 
-✅ Cleans and standardises provider data into curated and restricted datasets.
+| Endpoint | Description |
+|----------|-------------|
+| [`/health`](https://healthcare-pipeline.onrender.com/health) | Check if the ML model is loaded and view expected input features. |
+| `/score` | POST JSON payload to receive a `risk_low_quality` score. |
 
-✅ Generates KPI summaries and visual reports (PNG charts, TXT summaries).
+Example scoring request:
 
-✅ Trains a simple Logistic Regression model to predict risk of low-quality data.
 
-✅ Exposes predictions via a FastAPI REST API.
+Invoke-RestMethod -Method Post -Uri https://healthcare-pipeline.onrender.com/score -ContentType 'application/json' `
+  -Body '{"provider_type":"GP_PRACTICE","region":"London","data_completeness_score":0.70}'
+Expected JSON response:
 
-✅ Fully containerised with Docker → deployable anywhere.
 
-✅ Live deployment on Render (free tier).
+Edit
+{
+  "risk_low_quality": 0.1325
+}
+Project Overview
+This pipeline comprises the following key components implemented in Python and containerized for portability:
 
-🏗 Architecture
+
+Edit
+src/
+├── 01_fetch_cqc.py        # Downloads latest CQC provider directory
+├── 02_transform_cqc.py    # Cleans and standardizes data, anonymizes sensitive fields
+├── 03_report.py           # Creates KPI summaries and charts
+├── 04_ml_train.py         # Trains an ML model to flag low-quality data (with synthetic fallback)
+└── 05_score_api.py        # Exposes the model via FastAPI for live scoring
+Supporting infrastructure files include:
+
+entrypoint.py: One-click orchestration of all pipeline steps + API launch.
+
+Dockerfile + docker-compose.yml: For local and cloud deployments.
+
+requirements.txt: Specifies all necessary dependencies.
+
+Local Setup with Docker
+To run the entire pipeline locally from start to finish, follow these steps:
+
+
+git clone https://github.com/kartik703/healthcare_pipeline.git
+cd healthcare_pipeline
+docker compose build --no-cache
+docker compose up
+Once running, you’ll have a locally hosted API available at http://127.0.0.1:9000.
+
+Deployed on Render
+The pipeline is live and accessible via HTTPS:
+
+Health Endpoint: https://healthcare-pipeline.onrender.com/health
+
+Prediction Endpoint: POST https://healthcare-pipeline.onrender.com/score
+
+Architecture Overview
 flowchart LR
     A[01_fetch_cqc.py] --> B[02_transform_cqc.py]
     B --> C[03_report.py]
     C --> D[04_ml_train.py]
     D --> E[05_score_api.py]
-    E -->|Docker + Render| F[(Public API)]
+    E ==> F(Dockerized Service)
+    F --> G(Render Deployment)
+Tech Stack
+Languages & Libraries: Python, Pandas, Scikit-Learn, FastAPI, Joblib
 
-⚡ Quick Start (Local with Docker)
+Visualization: Matplotlib
 
-Clone the repo and build:
+Containerization: Docker
 
-git clone https://github.com/YOUR_USERNAME/gew_healthcare_pipeline.git
-cd gew_healthcare_pipeline
+Hosting: Render Deployment
 
-docker compose build --no-cache
+Development Tools: Git, GitHub
+
+How to Use This Project
+Cloning and Local Development
+bash
+Copy
+Edit
+git clone https://github.com/kartik703/healthcare_pipeline.git
+cd healthcare_pipeline
+Run Locally via Docker
+bash
+Copy
+Edit
+docker compose build
 docker compose up
+Test Locally
+bash
+Copy
+Edit
+curl -X GET http://127.0.0.1:9000/health
 
-
-API will be available at:
-
-http://127.0.0.1:9000
-
-🌍 Live API (Render)
-Health Check
-
-Open in browser:
-
-https://healthcare-pipeline.onrender.com/health
-
-
-Response:
-
-{
-  "ok": true,
-  "cols": ["data_completeness_score", "provider_type_HOSPITAL", ...]
-}
-
-Risk Scoring
-
-POST request (example with PowerShell):
-
-Invoke-RestMethod -Method Post -Uri https://healthcare-pipeline.onrender.com/score -ContentType 'application/json' `
-  -Body '{"provider_type":"GP_PRACTICE","region":"London","data_completeness_score":0.70}'
-
-
-Response:
-
-{
-  "risk_low_quality": 0.1325
-}
-
-📂 Project Structure
-gew_healthcare_pipeline/
-│
-├── data/                     # Raw inputs (CQC CSV)
-├── output/                   # Curated, restricted, reports, model
-│
-├── src/
-│   ├── 01_fetch_cqc.py       # Download CQC CSV
-│   ├── 02_transform_cqc.py   # Transform + anonymise
-│   ├── 03_report.py          # Generate KPIs + charts
-│   ├── 04_ml_train.py        # Train ML model
-│   ├── 05_score_api.py       # FastAPI service
-│
-├── requirements.txt
-├── entrypoint.py             # Pipeline + API launcher
-├── Dockerfile
-└── docker-compose.yml
-
-🧑‍💻 Author
-
-Kartik Goswami
-📍 Newcastle upon Tyne, UK
-🔗 GitHub
- | LinkedIn
-
-⭐ Demo Pitch (for Interview)
-
-“I deployed an end-to-end healthcare data pipeline on Render. It ingests live CQC data, cleans and curates it, generates KPIs, trains a risk model, and serves predictions through a public FastAPI API. For example, when I POST a GP practice in London with 70% data completeness, it returns a risk score of 0.1325.”
+curl -X POST http://127.0.0.1:9000/score \
+     -H "Content-Type: application/json" \
+     -d '{"provider_type":"GP_PRACTICE","region":"London","data_completeness_score":0.70}'
+View in Browser
+Visit https://healthcare-pipeline.onrender.com/health
